@@ -22,6 +22,8 @@ namespace ShootingGallery
         MouseState mState;
         int score = 0;
         bool mReleased = true;
+        bool endgame = false;
+        bool gamestart = false;
 
         double timer = 10;
 
@@ -30,7 +32,8 @@ namespace ShootingGallery
             //basic settings like windows settings
             _graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
-            IsMouseVisible = true;
+            //Set mouse to invisible once crosshairs are in place
+            IsMouseVisible = false;
         }
 
         protected override void Initialize()
@@ -62,6 +65,8 @@ namespace ShootingGallery
             {
                 timer -= gameTime.ElapsedGameTime.TotalSeconds;
             }
+            else
+                endgame = true;
 
             if (timer <0)
             {
@@ -77,6 +82,7 @@ namespace ShootingGallery
                 if (mouseTargetDist < targetRadius && timer>0)
                 {
                     score++;
+                    gamestart = true;
                     Random rand = new Random();
                     targetPosition.X = rand.Next(0, _graphics.PreferredBackBufferWidth);
                     targetPosition.Y = rand.Next(0, _graphics.PreferredBackBufferHeight);
@@ -101,11 +107,21 @@ namespace ShootingGallery
             //Anything that involves drawing on the screen and runs once every frame
             _spriteBatch.Begin();
             _spriteBatch.Draw(backgroundSprite, new Vector2(0,0), Color.White);
-            _spriteBatch.DrawString(gameFont, score.ToString(), new Vector2(3, 3), Color.White);
-            _spriteBatch.DrawString(gameFont, Math.Ceiling(timer).ToString(), new Vector2(3, 40), Color.Red);
+            _spriteBatch.DrawString(gameFont,"Score: " + score.ToString(), new Vector2(3, 3), Color.White);
+            _spriteBatch.DrawString(gameFont, "Time: " + Math.Ceiling(timer).ToString(), new Vector2(3, 40), Color.Red);
             if (timer > 0)
             {
                 _spriteBatch.Draw(targetSprite, new Vector2(targetPosition.X - targetRadius, targetPosition.Y - targetRadius), Color.White);
+            }
+
+            _spriteBatch.Draw(crosshairsSprite, new Vector2(mState.X - 25, mState.Y - 25), Color.White);
+            if (endgame && (score < 10))
+            {
+                _spriteBatch.DrawString(gameFont, "You Lost! You must score at least 10 shots", new Vector2(3, 120), Color.Green);
+            }
+            else if (endgame && score >= 10)
+            {
+                _spriteBatch.DrawString(gameFont, "You Won! You scored at least 10 shots.", new Vector2(3, 120), Color.Green);
             }
             _spriteBatch.End();
 
@@ -114,3 +130,9 @@ namespace ShootingGallery
         }
     }
 }
+
+    
+         
+  
+              
+  
